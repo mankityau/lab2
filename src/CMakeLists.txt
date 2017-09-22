@@ -1,3 +1,7 @@
 project(src)
 
-add_library(src quicksort.cpp)
+set(HEADERS quicksort.h)
+
+set(SOURCES quicksort.cpp)
+
+add_library(src ${HEADERS} ${SOURCES})
