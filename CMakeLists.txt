@@ -12,3 +12,8 @@ target_link_libraries(pi Threads::Threads)
 
 add_executable(integration src/integration.cpp)
 target_link_libraries(integration Threads::Threads)
+
+include_directories(src)
+
+add_subdirectory(src)
+add_subdirectory(test)

@@ -1,0 +1,4 @@
+add_subdirectory(lib/googletest-master)
+
+add_executable(runQuicksortUnitTest quicksortUnitTest.cpp)
+target_link_libraries(runQuicksortUnitTest src gtest gtest_main)
