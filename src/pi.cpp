@@ -9,7 +9,7 @@ namespace pi {
      * @param y the y coordinate
      * @return True, if x and y is within the unit circle.
      */
-    static bool isInUnitCicle(double x, double y){
+    static bool isInUnitCicle(double x, double y) {
         return x * x + y * y <= 1;
     }
 
@@ -25,20 +25,37 @@ namespace pi {
         hits[idx] = isInUnitCicle(dist(rnd), dist(rnd));
     }
 
+    /**
+     * count number of hits using nsamples, populates hits[threadIdx]
+     * @param hits the hits vector that will be modified.
+     * @param threadIdx the index that that will be modified
+     * @param nsamples the number of samples that will be generate.
+     */
+    static void pi_hits(std::vector<int> &hits, int threadIdx, int nsamples) {
+        static std::default_random_engine rnd(std::chrono::system_clock::now().time_since_epoch().count());
+        static std::uniform_real_distribution<double> dist(-1.0, 1.0);
+
+        int hitCount = 0;
+        for (int i = 0; i < nsamples; i++) {
+            if (isInUnitCicle(dist(rnd), dist(rnd))) {
+                hitCount++;
+            }
+        }
+        hits[threadIdx] = hitCount;
+    }
+
     double estimate_pi(int nsamples) {
         int hits = 0;
         std::default_random_engine rnd(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_real_distribution<double> dist(-1.0, 1.0);
-        for (int i = 0; i < nsamples; i++){
-            if (isInUnitCicle(dist(rnd), dist(rnd))){
-                hits ++;
+        for (int i = 0; i < nsamples; i++) {
+            if (isInUnitCicle(dist(rnd), dist(rnd))) {
+                hits++;
             }
         }
 
         return 4.0 * hits / nsamples;
     }
-
-
 
     double estimate_pi_multithread_naive(int nsamples) {
         // stores whether each sample falls within circle
@@ -66,55 +83,45 @@ namespace pi {
 
         return pi;
     }
+
+    double estimate_pi_multithread(int nsamples) {
+
+        // number of available cores
+        int nthreads = std::thread::hardware_concurrency();
+
+        // hit counts
+        std::vector<int> hits(nthreads, 0);
+
+        // create and store threads
+        std::vector<std::thread> threads;
+        int msamples = 0; // samples accounted for
+        for (int i = 0; i < nthreads - 1; ++i) {
+            threads.push_back(
+                    std::thread(pi_hits, std::ref(hits), i, nsamples / nthreads));
+            msamples += nsamples / nthreads;
+        }
+        // remaining samples
+        threads.push_back(
+                std::thread(pi_hits, std::ref(hits), nthreads - 1, nsamples - msamples));
+
+        // wait for threads to finish
+        for (int i = 0; i < nthreads; ++i) {
+            threads[i].join();
+        }
+
+        // estimate pi
+        double pi = 0;
+        for (int i = 0; i < nthreads; ++i) {
+            pi += hits[i];
+        }
+        pi = pi / nsamples * 4;
+
+        return pi;
+    }
 }
 
 //
-//// count number of hits using nsamples, populates hits[idx]
-//void pi_hits(std::vector<int> &hits, int idx, int nsamples) {
 //
-//    // single instance of random engine and distribution
-//    static std::default_random_engine rnd;
-//    static std::uniform_real_distribution<double> dist(-1.0, 1.0);
-//
-//    // YOUR CODE HERE
-//
-//}
-//
-//// divides work among threads intelligently
-//double estimate_pi_multithread(int nsamples) {
-//
-//    // number of available cores
-//    int nthreads = std::thread::hardware_concurrency();
-//
-//    // hit counts
-//    std::vector<int> hits(nthreads, 0);
-//
-//    // create and store threads
-//    std::vector<std::thread> threads;
-//    int msamples = 0; // samples accounted for
-//    for (int i = 0; i < nthreads - 1; ++i) {
-//        threads.push_back(
-//                std::thread(pi_hits, std::ref(hits), i, nsamples / nthreads));
-//        msamples += nsamples / nthreads;
-//    }
-//    // remaining samples
-//    threads.push_back(
-//            std::thread(pi_hits, std::ref(hits), nthreads - 1, nsamples - msamples));
-//
-//    // wait for threads to finish
-//    for (int i = 0; i < nthreads; ++i) {
-//        threads[i].join();
-//    }
-//
-//    // estimate pi
-//    double pi = 0;
-//    for (int i = 0; i < nthreads; ++i) {
-//        pi += hits[i];
-//    }
-//    pi = pi / nsamples * 4;
-//
-//    return pi;
-//}
 //
 //int main() {
 //
