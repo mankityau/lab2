@@ -1,7 +1,6 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-//#include "lib/cpen333/thread"
 
 
 namespace quicksort {
@@ -49,8 +48,8 @@ namespace quicksort {
     void parallel_quicksort(std::vector<int> &data, int low, int high) {
         if (low < high) {
             int pivotIndex = partition(data, low, high);
-            std::thread* threadLeft = new std::thread(quicksort::parallel_quicksort, std::ref(data),low, pivotIndex - 1);
-            std::thread* threadRight = new std::thread(quicksort::parallel_quicksort, std::ref(data),pivotIndex + 1, high);
+            std::thread* threadLeft = new std::thread(quicksort::quicksort, std::ref(data),low, pivotIndex - 1);
+            std::thread* threadRight = new std::thread(quicksort::quicksort, std::ref(data),pivotIndex + 1, high);
             threadLeft->join();
             threadRight->join();
         }
