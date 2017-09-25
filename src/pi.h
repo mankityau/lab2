@@ -8,5 +8,12 @@ namespace pi {
      * @return the esimated value of pi
      */
     double estimate_pi(int nsamples);
+
+    /**
+     * naively uses multithreading to try to speed up computations
+     * @param nsamples the number of samples
+     * @return the esimated value of pi
+     */
+    double estimate_pi_multithread_naive(int nsamples);
 }
 #endif //LAB2_PI_H
