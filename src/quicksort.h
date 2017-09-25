@@ -11,6 +11,14 @@ namespace quicksort{
      * @param high  The higher bound
      */
     void quicksort(std::vector<int> &data, int low, int high);
+
+    /**
+     * @brief       sorts elements low through high (inclusive) using multiple threads
+     * @param data  The vector that will be sorted
+     * @param low   The lower bound
+     * @param high  The higher bound
+     */
+    void parallel_quicksort(std::vector<int> &data, int low, int high);
 }
 
 #endif //LAB2_QUICKSORT_H
