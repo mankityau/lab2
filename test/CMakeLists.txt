@@ -2,3 +2,7 @@ add_subdirectory(lib/googletest)
 
 add_executable(runQuicksortUnitTest quicksortUnitTest.cpp)
 target_link_libraries(runQuicksortUnitTest src gtest gtest_main)
+
+
+add_executable(integrationFunctionalTest integrationFunctionalTest.cpp)
+target_link_libraries(integrationFunctionalTest src gtest gtest_main)
